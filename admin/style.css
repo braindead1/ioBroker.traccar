@@ -29,3 +29,10 @@ label > i[title] {
 }
 
 /* Add your styles here */
+.sub-title {
+    margin-top: 0px !important;
+    margin-bottom: 10px !important;
+    padding: 0.5rem;
+    background: #64b5f6;
+    color: white;
+}

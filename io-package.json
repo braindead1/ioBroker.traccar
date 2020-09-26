@@ -52,7 +52,7 @@
         "platform": "Javascript/Node.js",
         "main": "main.js",
         "icon": "traccar.png",
-        "enabled": true,
+        "enabled": false,
         "extIcon": "https://raw.githubusercontent.com/braindead1/ioBroker.traccar/master/admin/traccar.png",
         "readme": "https://github.com/braindead1/ioBroker.traccar/blob/master/README.md",
         "loglevel": "info",
@@ -69,9 +69,40 @@
         ]
     },
     "native": {
-        "option1": true,
-        "option2": "42"
+        "traccarIp": "",
+        "traccarPort": null,
+        "traccarUsername": "",
+        "traccarPassword": "",
+        "updateInterval": 120
     },
+    "protectedNative": [
+        "traccarPassword"
+    ],
+    "encryptedNative": [
+        "traccarPassword"
+    ],
     "objects": [],
-    "instanceObjects": []
+    "instanceObjects": [
+        {
+            "_id": "info",
+            "type": "channel",
+            "common": {
+                "name": "Information"
+            },
+            "native": {}
+        },
+        {
+            "_id": "info.connection",
+            "type": "state",
+            "common": {
+                "role": "indicator.connected",
+                "name": "Device or service connected",
+                "type": "boolean",
+                "read": true,
+                "write": false,
+                "def": false
+            },
+            "native": {}
+        }
+    ]
 }
