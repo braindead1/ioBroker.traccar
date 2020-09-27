@@ -192,7 +192,11 @@ class Traccar extends utils.Adapter {
             obj.common.name = stateName;
         }
 
-        await this.setObjectNotExistsAsync(stateId, obj);
+        await this.setObjectNotExistsAsync(stateId, {
+            type: obj.type,
+            common: JSON.parse(JSON.stringify(obj.common)),
+            native: JSON.parse(JSON.stringify(obj.native))
+        });
 
         if (value !== null) {
             await this.setStateChangedAsync(stateId, {
