@@ -10,6 +10,7 @@ const utils = require('@iobroker/adapter-core');
 
 // Load your modules here, e.g.:
 const axios = require('axios').default;
+const defObj = require('./lib/object_definitions').defObj;
 
 class Traccar extends utils.Adapter {
 
@@ -87,219 +88,43 @@ class Traccar extends utils.Adapter {
                 const geofences = responses[2].data;
 
                 // Process geofences
-                await this.setObjectNotExistsAsync('devices', {
-                    type: 'channel',
-                    common: {
-                        name: 'Devices'
-                    },
-                    native: {}
-                });
+                this.setObjectAndState('devices', 'devices');
 
                 for (const device of devices) {
                     const position = positions.find(p => p.id === device.positionId);
 
-                    await this.setObjectNotExistsAsync('devices.' + device.id, {
-                        type: 'channel',
-                        common: {
-                            name: device.name
-                        },
-                        native: {}
-                    });
+                    this.setObjectAndState('devices.device', 'devices.' + device.id, device.name);
 
-                    await this.setObjectNotExistsAsync('devices.' + device.id + '.unique_id', {
-                        type: 'state',
-                        common: {
-                            'name': 'Unique ID',
-                            'role': 'state',
-                            'type': 'string',
-                            'write': false,
-                            'read': true
-                        },
-                        native: {}
-                    });
+                    this.setObjectAndState('devices.device.altitude', 'devices.' + device.id + '.altitude', null, position.altitude);
 
-                    this.setStateChanged('devices.' + device.id + '.unique_id', device.uniqueId);
+                    this.setObjectAndState('devices.device.battery_level', 'devices.' + device.id + '.battery_level', null, position.attributes.batteryLevel);
 
-                    await this.setObjectNotExistsAsync('devices.' + device.id + '.device_name', {
-                        type: 'state',
-                        common: {
-                            'name': 'Device name',
-                            'role': 'info.name',
-                            'type': 'string',
-                            'write': false,
-                            'read': true
-                        },
-                        native: {}
-                    });
+                    this.setObjectAndState('devices.device.course', 'devices.' + device.id + '.course', null, position.course);
 
-                    this.setStateChanged('devices.' + device.id + '.device_name', device.name);
+                    this.setObjectAndState('devices.device.device_name', 'devices.' + device.id + '.device_name', null, device.name);
 
-                    await this.setObjectNotExistsAsync('devices.' + device.id + '.geofence_ids', {
-                        type: 'state',
-                        common: {
-                            'name': 'Geofence IDs',
-                            'role': 'json',
-                            'type': 'string',
-                            'write': false,
-                            'read': true
-                        },
-                        native: {}
-                    });
+                    this.setObjectAndState('devices.device.distance', 'devices.' + device.id + '.distance', null, position.attributes.distance);
 
-                    this.setStateChanged('devices.' + device.id + '.geofence_ids', JSON.stringify(device.geofenceIds));
-
-                    await this.setObjectNotExistsAsync('devices.' + device.id + '.geofences', {
-                        type: 'state',
-                        common: {
-                            'name': 'Geofences',
-                            'role': 'json',
-                            'type': 'string',
-                            'write': false,
-                            'read': true
-                        },
-                        native: {}
-                    });
+                    this.setObjectAndState('devices.device.geofence_ids', 'devices.' + device.id + '.geofence_ids', null, JSON.stringify(device.geofenceIds));
 
                     const geofencesState = [];
                     for (const geofenceId of device.geofenceIds) {
                         const geofence = geofences.find(element => element.id === geofenceId);
                         geofencesState.push(geofence.name);
                     }
-                    this.setStateChanged('devices.' + device.id + '.geofences', JSON.stringify(geofencesState));
+                    this.setObjectAndState('devices.device.geofences', 'devices.' + device.id + '.geofences', null, JSON.stringify(geofencesState));
 
-                    await this.setObjectNotExistsAsync('devices.' + device.id + '.battery_level', {
-                        type: 'state',
-                        common: {
-                            'name': 'Battery level',
-                            'role': 'value.battery',
-                            'type': 'number',
-                            'unit': '%',
-                            'write': false,
-                            'read': true
-                        },
-                        native: {}
-                    });
+                    this.setObjectAndState('devices.device.latitude', 'devices.' + device.id + '.latitude', null, position.latitude);
 
-                    this.setStateChanged('devices.' + device.id + '.battery_level', position.attributes.batteryLevel);
+                    this.setObjectAndState('devices.device.longitude', 'devices.' + device.id + '.longitude', null, position.longitude);
 
-                    await this.setObjectNotExistsAsync('devices.' + device.id + '.distance', {
-                        type: 'state',
-                        common: {
-                            'name': 'Distance',
-                            'role': 'value.distance',
-                            'type': 'number',
-                            'unit': 'm',
-                            'write': false,
-                            'read': true
-                        },
-                        native: {}
-                    });
+                    this.setObjectAndState('devices.device.motion', 'devices.' + device.id + '.motion', null, position.attributes.motion);
 
-                    this.setStateChanged('devices.' + device.id + '.distance', position.attributes.distance);
+                    this.setObjectAndState('devices.device.speed', 'devices.' + device.id + '.speed', null, position.speed);
 
-                    await this.setObjectNotExistsAsync('devices.' + device.id + '.total_distance', {
-                        type: 'state',
-                        common: {
-                            'name': 'Total distance',
-                            'role': 'value.distance',
-                            'type': 'number',
-                            'unit': 'm',
-                            'write': false,
-                            'read': true
-                        },
-                        native: {}
-                    });
+                    this.setObjectAndState('devices.device.total_distance', 'devices.' + device.id + '.total_distance', null, position.attributes.totalDistance);
 
-                    this.setStateChanged('devices.' + device.id + '.total_distance', position.attributes.totalDistance);
-
-                    await this.setObjectNotExistsAsync('devices.' + device.id + '.speed', {
-                        type: 'state',
-                        common: {
-                            'name': 'Speed',
-                            'role': 'value.speed',
-                            'type': 'number',
-                            'unit': 'km/h',
-                            'write': false,
-                            'read': true
-                        },
-                        native: {}
-                    });
-
-                    this.setStateChanged('devices.' + device.id + '.speed', position.speed);
-
-                    await this.setObjectNotExistsAsync('devices.' + device.id + '.motion', {
-                        type: 'state',
-                        common: {
-                            'name': 'Motion',
-                            'role': 'sensor.motion',
-                            'type': 'boolean',
-                            'write': false,
-                            'read': true
-                        },
-                        native: {}
-                    });
-
-                    this.setStateChanged('devices.' + device.id + '.motion', position.attributes.motion);
-
-                    await this.setObjectNotExistsAsync('devices.' + device.id + '.latitude', {
-                        type: 'state',
-                        common: {
-                            'name': 'Latitude',
-                            'role': 'value.gps.latitude',
-                            'type': 'number',
-                            'unit': '°',
-                            'write': false,
-                            'read': true
-                        },
-                        native: {}
-                    });
-
-                    this.setStateChanged('devices.' + device.id + '.latitude', position.latitude);
-
-                    await this.setObjectNotExistsAsync('devices.' + device.id + '.longitude', {
-                        type: 'state',
-                        common: {
-                            'name': 'Longitude',
-                            'role': 'value.gps.longitude',
-                            'unit': '°',
-                            'type': 'number',
-                            'write': false,
-                            'read': true
-                        },
-                        native: {}
-                    });
-
-                    this.setStateChanged('devices.' + device.id + '.longitude', position.longitude);
-
-                    await this.setObjectNotExistsAsync('devices.' + device.id + '.altitude', {
-                        type: 'state',
-                        common: {
-                            'name': 'Altitude',
-                            'role': 'value.gps.elevation',
-                            'type': 'number',
-                            'unit': '°',
-                            'write': false,
-                            'read': true
-                        },
-                        native: {}
-                    });
-
-                    this.setStateChanged('devices.' + device.id + '.altitude', position.altitude);
-
-                    await this.setObjectNotExistsAsync('devices.' + device.id + '.course', {
-                        type: 'state',
-                        common: {
-                            'name': 'Course',
-                            'role': 'state',
-                            'type': 'number',
-                            'unit': '°',
-                            'write': false,
-                            'read': true
-                        },
-                        native: {}
-                    });
-
-                    this.setStateChanged('devices.' + device.id + '.course', position.course);
+                    this.setObjectAndState('devices.device.unique_id', 'devices.' + device.id + '.unique_id', null, device.uniqueId);
                 }
             })
             .catch(async errors => {
@@ -309,6 +134,46 @@ class Traccar extends utils.Adapter {
         this.queryTimeout = setTimeout(() => {
             this.updateTraccarData();
         }, this.config.updateInterval * 1000);
+    }
+
+    /**
+     * Is used to create and object and set the value
+     * @param {string} objectId
+     * @param {string} stateId
+     * @param {string | null} stateName
+     * @param {*} value
+     */
+    async setObjectAndState(objectId, stateId, stateName = null, value = null) {
+        let obj;
+
+        if (defObj[objectId]) {
+            obj = defObj[objectId];
+        } else {
+            obj = {
+                type: 'state',
+                common: {
+                    name: stateName,
+                    type: 'mixed',
+                    role: 'state',
+                    read: true,
+                    write: true
+                },
+                native: {}
+            };
+        }
+
+        if (stateName !== null) {
+            obj.common.name = stateName;
+        }
+
+        await this.setObjectNotExistsAsync(stateId, obj);
+
+        if (value !== null) {
+            await this.setStateChangedAsync(stateId, {
+                val: value,
+                ack: true
+            });
+        }
     }
 
 }
