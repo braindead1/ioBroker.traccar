@@ -53,6 +53,7 @@
         "main": "main.js",
         "icon": "traccar.png",
         "enabled": false,
+        "localLink": "http://%traccarIp%:%traccarPort%",
         "extIcon": "https://raw.githubusercontent.com/braindead1/ioBroker.traccar/master/admin/traccar.png",
         "readme": "https://github.com/braindead1/ioBroker.traccar/blob/master/README.md",
         "loglevel": "info",
