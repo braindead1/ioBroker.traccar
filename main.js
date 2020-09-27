@@ -69,93 +69,93 @@ class Traccar extends utils.Adapter {
      * Is called to update Traccar data
      */
     async updateTraccarData() {
-        const baseUrl = 'http://' + this.config.traccarIp + ':' + this.config.traccarPort + '/api';
-        const axiosOptions = {
-            auth: {
-                username: this.config.traccarUsername,
-                password: this.config.traccarPassword
+        try {
+            const baseUrl = 'http://' + this.config.traccarIp + ':' + this.config.traccarPort + '/api';
+            const axiosOptions = {
+                auth: {
+                    username: this.config.traccarUsername,
+                    password: this.config.traccarPassword
+                }
+            };
+
+            const responses = await axios.all([
+                axios.get(baseUrl + '/devices', axiosOptions),
+                axios.get(baseUrl + '/positions', axiosOptions),
+                axios.get(baseUrl + '/geofences', axiosOptions)
+            ]);
+
+            const devices = responses[0].data;
+            const positions = responses[1].data;
+            const geofences = responses[2].data;
+
+            // Process devices
+            this.setObjectAndState('devices', 'devices');
+
+            for (const device of devices) {
+                const position = positions.find(p => p.id === device.positionId);
+
+                this.setObjectAndState('devices.device', 'devices.' + device.id, device.name);
+
+                this.setObjectAndState('devices.device.altitude', 'devices.' + device.id + '.altitude', null, Number.parseFloat(position.altitude).toFixed(1));
+
+                this.setObjectAndState('devices.device.battery_level', 'devices.' + device.id + '.battery_level', null, position.attributes.batteryLevel);
+
+                this.setObjectAndState('devices.device.course', 'devices.' + device.id + '.course', null, position.course);
+
+                this.setObjectAndState('devices.device.device_name', 'devices.' + device.id + '.device_name', null, device.name);
+
+                this.setObjectAndState('devices.device.distance', 'devices.' + device.id + '.distance', null, position.attributes.distance);
+
+                this.setObjectAndState('devices.device.geofence_ids', 'devices.' + device.id + '.geofence_ids', null, JSON.stringify(device.geofenceIds));
+
+                const geofencesState = [];
+                for (const geofenceId of device.geofenceIds) {
+                    const geofence = geofences.find(element => element.id === geofenceId);
+                    geofencesState.push(geofence.name);
+                }
+                this.setObjectAndState('devices.device.geofences', 'devices.' + device.id + '.geofences', null, JSON.stringify(geofencesState));
+
+                this.setObjectAndState('devices.device.last_update', 'devices.' + device.id + '.last_update', null, device.lastUpdate);
+
+                this.setObjectAndState('devices.device.latitude', 'devices.' + device.id + '.latitude', null, position.latitude);
+
+                this.setObjectAndState('devices.device.longitude', 'devices.' + device.id + '.longitude', null, position.longitude);
+
+                this.setObjectAndState('devices.device.motion', 'devices.' + device.id + '.motion', null, position.attributes.motion);
+
+                this.setObjectAndState('devices.device.position', 'devices.' + device.id + '.position', null, position.latitude + ',' + position.longitude);
+
+                this.setObjectAndState('devices.device.speed', 'devices.' + device.id + '.speed', null, position.speed);
+
+                this.setObjectAndState('devices.device.status', 'devices.' + device.id + '.status', null, device.status);
+
+                this.setObjectAndState('devices.device.total_distance', 'devices.' + device.id + '.total_distance', null, position.attributes.totalDistance);
+
+                this.setObjectAndState('devices.device.unique_id', 'devices.' + device.id + '.unique_id', null, device.uniqueId);
             }
-        };
 
-        const getDevices = axios.get(baseUrl + '/devices', axiosOptions);
-        const getPosiions = axios.get(baseUrl + '/positions', axiosOptions);
-        const getGeofences = axios.get(baseUrl + '/geofences', axiosOptions);
+            // Process geofences
+            this.setObjectAndState('geofences', 'geofences');
 
-        await axios.all([getDevices, getPosiions, getGeofences])
-            .then(async responses => {
-                const devices = responses[0].data;
-                const positions = responses[1].data;
-                const geofences = responses[2].data;
+            for (const geofence of geofences) {
+                this.setObjectAndState('geofences.geofence', 'geofences.' + geofence.id, geofence.name);
 
-                // Process devices
-                this.setObjectAndState('devices', 'devices');
+                this.setObjectAndState('geofences.geofence.geofence_name', 'geofences.' + geofence.id + '.geofence_name', null, geofence.name);
 
+                const deviceIdsState = [];
+                const devicesState = [];
                 for (const device of devices) {
-                    const position = positions.find(p => p.id === device.positionId);
-
-                    this.setObjectAndState('devices.device', 'devices.' + device.id, device.name);
-
-                    this.setObjectAndState('devices.device.altitude', 'devices.' + device.id + '.altitude', null, position.altitude);
-
-                    this.setObjectAndState('devices.device.battery_level', 'devices.' + device.id + '.battery_level', null, position.attributes.batteryLevel);
-
-                    this.setObjectAndState('devices.device.course', 'devices.' + device.id + '.course', null, position.course);
-
-                    this.setObjectAndState('devices.device.device_name', 'devices.' + device.id + '.device_name', null, device.name);
-
-                    this.setObjectAndState('devices.device.distance', 'devices.' + device.id + '.distance', null, position.attributes.distance);
-
-                    this.setObjectAndState('devices.device.geofence_ids', 'devices.' + device.id + '.geofence_ids', null, JSON.stringify(device.geofenceIds));
-
-                    const geofencesState = [];
-                    for (const geofenceId of device.geofenceIds) {
-                        const geofence = geofences.find(element => element.id === geofenceId);
-                        geofencesState.push(geofence.name);
+                    if (device.geofenceIds.includes(geofence.id)) {
+                        deviceIdsState.push(device.id);
+                        devicesState.push(device.name);
                     }
-                    this.setObjectAndState('devices.device.geofences', 'devices.' + device.id + '.geofences', null, JSON.stringify(geofencesState));
-
-                    this.setObjectAndState('devices.device.last_update', 'devices.' + device.id + '.last_update', null, device.lastUpdate);
-
-                    this.setObjectAndState('devices.device.latitude', 'devices.' + device.id + '.latitude', null, position.latitude);
-
-                    this.setObjectAndState('devices.device.longitude', 'devices.' + device.id + '.longitude', null, position.longitude);
-
-                    this.setObjectAndState('devices.device.motion', 'devices.' + device.id + '.motion', null, position.attributes.motion);
-
-                    this.setObjectAndState('devices.device.position', 'devices.' + device.id + '.position', null, position.latitude + ','+ position.longitude);
-
-                    this.setObjectAndState('devices.device.speed', 'devices.' + device.id + '.speed', null, position.speed);
-
-                    this.setObjectAndState('devices.device.status', 'devices.' + device.id + '.status', null, device.status);
-
-                    this.setObjectAndState('devices.device.total_distance', 'devices.' + device.id + '.total_distance', null, position.attributes.totalDistance);
-
-                    this.setObjectAndState('devices.device.unique_id', 'devices.' + device.id + '.unique_id', null, device.uniqueId);
                 }
-
-                // Process geofences
-                this.setObjectAndState('geofences', 'geofences');
-
-                for (const geofence of geofences) {
-                    this.setObjectAndState('geofences.geofence', 'geofences.' + geofence.id, geofence.name);
-
-                    this.setObjectAndState('geofences.geofence.geofence_name', 'geofences.' + geofence.id + '.geofence_name', null, geofence.name);
-
-                    const deviceIdsState = [];
-                    const devicesState = [];
-                    for (const device of devices) {
-                        if (device.geofenceIds.includes(geofence.id)) {
-                            deviceIdsState.push(device.id);
-                            devicesState.push(device.name);
-                        }
-                    }
-                    this.setObjectAndState('geofences.geofence.device_ids', 'geofences.' + geofence.id + '.device_ids', null, JSON.stringify(deviceIdsState));
-                    this.setObjectAndState('geofences.geofence.devices', 'geofences.' + geofence.id + '.devices', null, JSON.stringify(devicesState));
-                }
-            })
-            .catch(async errors => {
-                this.log.error(errors);
-            });
+                this.setObjectAndState('geofences.geofence.device_ids', 'geofences.' + geofence.id + '.device_ids', null, JSON.stringify(deviceIdsState));
+                this.setObjectAndState('geofences.geofence.devices', 'geofences.' + geofence.id + '.devices', null, JSON.stringify(devicesState));
+            }
+        } catch (err) {
+            this.log.error(err);
+        }
 
         this.queryTimeout = setTimeout(() => {
             this.updateTraccarData();
