@@ -114,13 +114,19 @@ class Traccar extends utils.Adapter {
                     }
                     this.setObjectAndState('devices.device.geofences', 'devices.' + device.id + '.geofences', null, JSON.stringify(geofencesState));
 
+                    this.setObjectAndState('devices.device.last_update', 'devices.' + device.id + '.last_update', null, device.lastUpdate);
+
                     this.setObjectAndState('devices.device.latitude', 'devices.' + device.id + '.latitude', null, position.latitude);
 
                     this.setObjectAndState('devices.device.longitude', 'devices.' + device.id + '.longitude', null, position.longitude);
 
                     this.setObjectAndState('devices.device.motion', 'devices.' + device.id + '.motion', null, position.attributes.motion);
 
+                    this.setObjectAndState('devices.device.position', 'devices.' + device.id + '.position', null, position.latitude + ','+ position.longitude);
+
                     this.setObjectAndState('devices.device.speed', 'devices.' + device.id + '.speed', null, position.speed);
+
+                    this.setObjectAndState('devices.device.status', 'devices.' + device.id + '.status', null, device.status);
 
                     this.setObjectAndState('devices.device.total_distance', 'devices.' + device.id + '.total_distance', null, position.attributes.totalDistance);
 
