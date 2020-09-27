@@ -17,7 +17,8 @@
     "url": "https://github.com/braindead1/ioBroker.traccar"
   },
   "dependencies": {
-    "@iobroker/adapter-core": "^2.4.0"
+    "@iobroker/adapter-core": "^2.4.0",
+    "axios": "^0.20.0"
   },
   "devDependencies": {
     "@iobroker/testing": "^2.3.0",
