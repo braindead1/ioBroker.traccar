@@ -87,7 +87,7 @@ class Traccar extends utils.Adapter {
                 const positions = responses[1].data;
                 const geofences = responses[2].data;
 
-                // Process geofences
+                // Process devices
                 this.setObjectAndState('devices', 'devices');
 
                 for (const device of devices) {
