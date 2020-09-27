@@ -132,6 +132,26 @@ class Traccar extends utils.Adapter {
 
                     this.setObjectAndState('devices.device.unique_id', 'devices.' + device.id + '.unique_id', null, device.uniqueId);
                 }
+
+                // Process geofences
+                this.setObjectAndState('geofences', 'geofences');
+
+                for (const geofence of geofences) {
+                    this.setObjectAndState('geofences.geofence', 'geofences.' + geofence.id, geofence.name);
+
+                    this.setObjectAndState('geofences.geofence.geofence_name', 'geofences.' + geofence.id + '.geofence_name', null, geofence.name);
+
+                    const deviceIdsState = [];
+                    const devicesState = [];
+                    for (const device of devices) {
+                        if (device.geofenceIds.includes(geofence.id)) {
+                            deviceIdsState.push(device.id);
+                            devicesState.push(device.name);
+                        }
+                    }
+                    this.setObjectAndState('geofences.geofence.device_ids', 'geofences.' + geofence.id + '.device_ids', null, JSON.stringify(deviceIdsState));
+                    this.setObjectAndState('geofences.geofence.devices', 'geofences.' + geofence.id + '.devices', null, JSON.stringify(devicesState));
+                }
             })
             .catch(async errors => {
                 this.log.error(errors);
