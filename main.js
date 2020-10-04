@@ -70,7 +70,7 @@ class Traccar extends utils.Adapter {
      */
     async updateTraccarData() {
         try {
-            const baseUrl = 'http://' + this.config.traccarIp + ':' + this.config.traccarPort + '/api';
+            const baseUrl   = 'http://' + this.config.traccarIp + ':' + this.config.traccarPort + '/api';
             const axiosOptions = {
                 auth: {
                     username: this.config.traccarUsername,
@@ -124,7 +124,10 @@ class Traccar extends utils.Adapter {
                 this.setObjectAndState('devices.device.motion', 'devices.' + device.id + '.motion', null, position.attributes.motion);
 
                 this.setObjectAndState('devices.device.position', 'devices.' + device.id + '.position', null, position.latitude + ',' + position.longitude);
-
+                
+                const positionUrl = 'http://maps.google.com/maps?z=15&t=m&q=loc:' + position.latitude + '+' + position.longitude;
+                this.setObjectAndState('devices.device.position', 'devices.' + device.id + '.position-url', null, positionUrl);
+                
                 this.setObjectAndState('devices.device.speed', 'devices.' + device.id + '.speed', null, position.speed);
 
                 this.setObjectAndState('devices.device.status', 'devices.' + device.id + '.status', null, device.status);
